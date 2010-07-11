@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+    {% for stylesheet in stylesheets %}
+        	<link rel="stylesheet" href="{{ MEDIA_URL }}{{ stylesheet }}" type="text/css" media="screen" charset="utf-8">
+    {% endfor %}
+    {% for javascript in javascripts %}
+        <script src="{{ MEDIA_URL }}{{ javascript }}" type="text/javascript" charset="utf-8"></script>
+    {% endfor %}
+{% endblock %}

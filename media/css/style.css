@@ -1,0 +1,14 @@
+.movieDetail td{
+  vertical-align:top;
+}
+
+.x-view-drag-insert-above { 
+    border-top:1px dotted #3366cc; 
+} 
+.x-view-drag-insert-below { 
+    border-bottom:1px dotted #3366cc; 
+} 
+
+.thumb-wrap {
+  background:red;
+}
