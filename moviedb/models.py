@@ -112,21 +112,13 @@ class Movie(models.Model):
 
         # get image data from themoviedb
         self.posters=[]
-#        obj=themoviedb.getImages(self.imdbID)
-#        if obj[0] != 'Nothing found.':
-#            for poster in obj[0]['posters']:
-#                if poster['image']['size']=='original':
-#                    query=Poster.query.filter_by(remotePath = poster['image']['url'])
-#                    if query.count():
-#                        nPoster = query.one()
-#                        #print 'one'
-#                    else:
-#                        nPoster = Poster()
-#                        #print 'new'
-#                    nPoster.remotePath = poster['image']['url']
-#                    nPoster.sourceType = u'themoviedb'
-#                    nPoster.load()
-#                    self.posters.append(nPoster)
+        obj=themoviedb.getImages(self.imdbID)
+        if obj[0] != 'Nothing found.':
+            for poster in obj[0]['posters']:
+                if poster['image']['size']=='original':
+                    newPoster = Posters.objects.create(remotePath = poster['image']['url'], sourceType = u'themoviedb')
+                    newPoster.download()
+                    self.posters.add(newPoster)
 
 
     def searchOSHash(self):
@@ -262,12 +254,12 @@ class Country(models.Model):
 #
 class Poster(models.Model):
     """a poster belongs to a movie"""
-    name = models.TextField(max_length = 200)
+    name = models.TextField(max_length = 200, blank = True)
     remotePath = models.TextField()
     sourceType = models.TextField()
     order = models.IntegerField(default = 0)
-    imageOriginal = models.ImageField(upload_to = 'posters/original')
-    imageThumb = models.ImageField(upload_to = 'posters/thumb', blank=True)
+    imageOriginal = models.ImageField(upload_to = 'posters/original', blank = True)
+    imageThumb = models.ImageField(upload_to = 'posters/thumb', blank = True)
 
     movie = models.ForeignKey('Movie', related_name = 'posters')
 
@@ -287,6 +279,9 @@ class Poster(models.Model):
         #print self.imageThumb.path
         im.save(self.imageThumb.path)
         super(Poster, self).save(**kwargs)
+        
+    def download(self):
+        pass
         
 
 

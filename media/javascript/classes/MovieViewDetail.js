@@ -59,12 +59,12 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
     	handler: this.serachIMDB,
     	scope:this
     });	
-    this.searchOSHashButton=new Ext.Button({
+    /*this.searchOSHashButton=new Ext.Button({
     	iconCls:'silk-film_link',
     	text:'Find imdb',
     	handler: this.searchOSHash,
     	scope:this
-    });	
+    });*/
     /*this.changeImg=new Ext.Button({
     	iconCls:'silk-picture_add',
     	text:'New Picture',
@@ -107,7 +107,7 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
   		margins:0,
   		activeTab:0,
   		items:[this.movie,this.files,this.images,this.commentForm],
-  		tbar:[this.findIMDB,this.searchOSHashButton/*,this.changeImg,'-',this.bookmark,this.comment*/]
+  		tbar:[this.findIMDB,/*this.searchOSHashButton,this.changeImg,'-',this.bookmark,this.comment*/]
   	});
   },
 

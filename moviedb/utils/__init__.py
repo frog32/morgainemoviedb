@@ -1,1 +1,1 @@
-import opensubtitles
+import opensubtitles, themoviedb
