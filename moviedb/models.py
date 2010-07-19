@@ -347,7 +347,9 @@ class File(models.Model):
         '''get metadata with ffmpeg'''
         ffmpeginfo=subprocess.Popen(['ffmpeg', '-i', self.path], stderr=subprocess.PIPE).communicate()[1]
 
-        self.format=re.search('(?<=Input #0, )[^,]+',ffmpeginfo).group(0)
+        result=re.search('(?<=Input #0, )[^,]+',ffmpeginfo)
+        if result:
+            self.format= result.group(0) 
         streams=re.findall('Stream #[0-9]\.[0-9].*$',ffmpeginfo,re.MULTILINE)
         for stream in streams:
             #print stream
@@ -528,7 +530,7 @@ class Folder(models.Model):
             if file.type == 'dir':
                 report = file.scan(report)
         # if not belongs to a movie assign it and all subfiles to a movie
-        for file in self.files.filter(parent_id=0):
+        for file in self.files.filter(parent__isnull=True):
             if file.movie is None and file.containsMovies():
                 newMovie = Movie()
                 newMovie.save()
