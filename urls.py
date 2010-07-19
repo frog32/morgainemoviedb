@@ -26,7 +26,8 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls), name = 'admin'),
     url(r'^mdb/', include('morgainemoviedb.moviedb.urls'), name = 'mdb'),
+    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
     url(r'^index\.html$', views.index),
-    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True})
+    url(r'^$', views.index),
     
 )
