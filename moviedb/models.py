@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with morgainemoviedb.  If not, see <http://www.gnu.org/licenses/>.
 
-from moviedb.custom_models import RenameFilesModel
 from moviedb.conf import settings
 from moviedb.utils import *
 from django.db import models
