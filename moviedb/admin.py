@@ -16,30 +16,62 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with morgainemoviedb.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.contrib import admin
 from moviedb.models import Movie, Title, Genre, Person, Role, Actor, Country, Poster, File, AudioTrack, VideoTrack, SubtitleTrack, Folder
+
+from django.contrib import admin
+
+import threading
 
 class PosterAdmin(admin.ModelAdmin):
     exclude = ('imageThumb',)
 
 def scan_folders(modeladmin, request, queryset):
-    for obj in queryset:
-        obj.scan()
+    class FolderScaner(threading.Thread):
+        """Thread to scan all Folders"""
+
+        def run(self):
+            for obj in queryset:
+                obj.scan()
+    
+    s=FolderScaner()
+    s.start()
+
 scan_folders.short_description = "Scan these Folders for new Movies"
 
 class FolderAdmin(admin.ModelAdmin):
     actions = [scan_folders]
 
-admin.site.register(Movie)
-admin.site.register(Title)
+class VideoTrackAdmin(admin.TabularInline):
+    model = VideoTrack
+
+class AudioTrackAdmin(admin.TabularInline):
+    model = AudioTrack
+
+class SubtitleTrackAdmin(admin.TabularInline):
+    model = SubtitleTrack
+
+class FileAdmin(admin.ModelAdmin):
+    inlines = [
+        VideoTrackAdmin,
+        AudioTrackAdmin,
+        SubtitleTrackAdmin,
+    ]
+    
+class TitleAdmin(admin.TabularInline):
+    model = Title
+    extra = 1
+    
+class MovieAdmin(admin.ModelAdmin):
+    inlines = [
+        TitleAdmin,
+    ]
+    
+admin.site.register(Movie, MovieAdmin)
 admin.site.register(Genre)
 admin.site.register(Person)
 admin.site.register(Role)
 admin.site.register(Actor)
 admin.site.register(Country)
 admin.site.register(Poster, PosterAdmin)
-admin.site.register(File)
-admin.site.register(AudioTrack)
-admin.site.register(VideoTrack)
-admin.site.register(SubtitleTrack)
+admin.site.register(File,FileAdmin)
 admin.site.register(Folder, FolderAdmin)

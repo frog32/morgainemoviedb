@@ -16,33 +16,37 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with morgainemoviedb.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.db import models
 from moviedb.custom_models import RenameFilesModel
-from PIL import Image
-from django.utils.encoding import force_unicode
-import os, subprocess, re, urllib2, Image, imdb
 from moviedb.conf import settings
 from moviedb.utils import *
+from django.db import models
+from django.utils.encoding import force_unicode
 from django.contrib.auth.models import User
+import os
+import subprocess
+import re
+import urllib2
+import Image
+import imdb
 
 class Movie(models.Model):
     """representing a movie"""
-    year = models.IntegerField(default = 0)
-    imdbID = models.IntegerField(default = 0)
-    mdbID = models.IntegerField(default = 0)
-    active = models.BooleanField(default = True)
+    year = models.IntegerField(default=0)
+    imdbID = models.IntegerField(default=0)
+    mdbID = models.IntegerField(default=0)
+    active = models.BooleanField(default=True)
 
-    duration = models.IntegerField(default = 0)
-    languages = models.TextField(blank = True)
-    resolution = models.TextField(blank = True)
+    duration = models.IntegerField(default=0)
+    languages = models.TextField(blank=True)
+    resolution = models.CharField(blank=True, max_length=20)
 
-    genres = models.ManyToManyField('Genre', related_name = 'movies', blank = True)
-    writers = models.ManyToManyField('Person', related_name = 'moviesWriter', db_table = 'moviedb_movie_writers', blank = True)
-    directors = models.ManyToManyField('Person', related_name = 'moviesDirector', db_table = 'moviedb_movie_directors', blank = True)
-    cast = models.ManyToManyField('Person', through = 'Actor', blank = True)
-    countries = models.ManyToManyField('Country', related_name = 'movies', blank = True)
+    genres = models.ManyToManyField('Genre', related_name = 'movies', blank=True)
+    writers = models.ManyToManyField('Person', related_name = 'moviesWriter', db_table = 'moviedb_movie_writers', blank=True)
+    directors = models.ManyToManyField('Person', related_name = 'moviesDirector', db_table = 'moviedb_movie_directors', blank=True)
+    cast = models.ManyToManyField('Person', through = 'Actor', blank=True)
+    countries = models.ManyToManyField('Country', related_name = 'movies', blank=True)
     
-    bookmarkedMovies = models.ManyToManyField(User, related_name = 'bookmarkedUsers', blank = True, through = 'Bookmark')
+    bookmarkedMovies = models.ManyToManyField(User, related_name = 'bookmarkedUsers', blank=True, through = 'Bookmark')
     #files = OneToMany('File')
     #posters = OneToMany('Poster')
     #comments = OneToMany('Comment')
@@ -54,7 +58,7 @@ class Movie(models.Model):
             return '<Movie "unsaved">'
 
     def __unicode__(self):
-        t = Title.objects.filter(movie__id = self.id).filter(default = True)
+        t = Title.objects.filter(movie__id = self.id).filter(default=True)
         if t.count():
             return t.get().text
         else:
@@ -175,11 +179,11 @@ class Movie(models.Model):
 
 class Title(models.Model):
     """a movie title"""
-    text = models.TextField()
-    country = models.TextField(max_length = 30, blank = True)
-    language = models.TextField(max_length = 30, blank = True)
-    comment = models.TextField(max_length = 100, blank = True)
-    default = models.BooleanField(default = False)
+    text = models.CharField(max_length=255)
+    country = models.CharField(max_length=30, blank=True)
+    language = models.CharField(max_length=30, blank=True)
+    comment = models.CharField(max_length=100, blank=True)
+    default = models.BooleanField(default=False)
 
     movie = models.ForeignKey('Movie', related_name = 'titles')
 
@@ -199,7 +203,7 @@ def searchOrAddGenre(genre):
 
 class Genre(models.Model):
     """genre of a movie"""
-    name = models.TextField(max_length = 20, unique=True)
+    name = models.CharField(max_length=20, unique=True)
     # movies manytomany
 
     def __repr__(self):
@@ -218,8 +222,8 @@ def searchOrAddPerson(person):
 
 class Person(models.Model):
     """a real person"""
-    name = models.TextField()
-    imdbID = models.IntegerField(default = 0)
+    name = models.CharField(max_length=100)
+    imdbID = models.IntegerField(default=0)
 
     #moviesWriter = ManyToMany('Movie', tablename = 'movie_writers')
     #moviesDirector = ManyToMany('Movie', tablename = 'movie_directors')
@@ -239,8 +243,8 @@ def searchOrAddRole(role):
         return Role.objects.create(imdbID = role.getID() if role.getID() else 0, name = role['name'])
 
 class Role(models.Model):
-    name = models.TextField(max_length = 30)
-    imdbID = models.IntegerField(default = 0)
+    name = models.CharField(max_length=100)
+    imdbID = models.IntegerField(default=0)
 
     def __repr__(self):
         if self.imdbID:
@@ -261,7 +265,7 @@ class Actor(models.Model):
         
 
 class Country(models.Model):
-    name = models.TextField(max_length = 30, unique=True)
+    name = models.CharField(max_length=100, unique=True)
     
     def __repr__(self):
         return '<Country "%s">' % (self.name,)
@@ -272,12 +276,12 @@ class Country(models.Model):
 #
 class Poster(models.Model):
     """a poster belongs to a movie"""
-    name = models.TextField(max_length = 200, blank = True)
+    name = models.CharField(max_length=255, blank=True)
     remotePath = models.TextField()
     sourceType = models.TextField()
-    order = models.IntegerField(default = 0)
-    imageOriginal = models.ImageField(upload_to = 'posters/original', blank = True)
-    imageThumb = models.ImageField(upload_to = 'posters/thumb', blank = True)
+    order = models.IntegerField(default=0)
+    imageOriginal = models.ImageField(upload_to = 'posters/original', blank=True)
+    imageThumb = models.ImageField(upload_to = 'posters/thumb', blank=True)
 
     movie = models.ForeignKey('Movie', related_name = 'posters')
 
@@ -307,18 +311,18 @@ class File(models.Model):
     """representing a file"""
     path = models.TextField()
     name = models.TextField()
-    type = models.TextField(max_length = 20)
-    format = models.TextField(max_length = 20)
-    hash = models.TextField(blank= True)
-    size = models.IntegerField(default = 0)
-    duration = models.IntegerField(default = 0)
+    type = models.CharField(max_length=20)
+    format = models.CharField(max_length=20)
+    hash = models.CharField(max_length=32, blank=True)
+    size = models.IntegerField(default=0)
+    duration = models.IntegerField(default=0)
 
-    movie = models.ForeignKey('Movie', related_name = 'files', blank = True, null = True)
+    movie = models.ForeignKey('Movie', related_name = 'files', blank=True, null = True)
     folder = models.ForeignKey('Folder', related_name = 'files')
     #videoTracks = OneToMany('VideoTrack')
     #audioTracks = OneToMany('AudioTrack')
     #subtitleTracks = OneToMany('SubtitleTrack')
-    parent = models.ForeignKey('self', related_name = 'childs', blank = True, null = True)
+    parent = models.ForeignKey('self', related_name = 'childs', blank=True, null = True)
 
     def __repr__(self):
         return '<File "%s" (%s)>' % (self.name, self.path)
@@ -428,14 +432,14 @@ class File(models.Model):
 
 class VideoTrack(models.Model):
     """representing a video track"""
-    name = models.TextField(max_length = 30)
-    default = models.BooleanField(default = False)
-    forced = models.BooleanField(default = False)
+    name = models.CharField(max_length=30)
+    default=models.BooleanField(default=False)
+    forced = models.BooleanField(default=False)
     uid = models.IntegerField()
-    codec = models.TextField(max_length = 20)
+    codec = models.CharField(max_length=20)
     width = models.IntegerField()
     height = models.IntegerField()
-    bitrate = models.IntegerField(default = 0)
+    bitrate = models.IntegerField(default=0)
 
     file = models.ForeignKey('File', related_name = 'videoTracks')
 
@@ -445,14 +449,14 @@ class VideoTrack(models.Model):
 
 class AudioTrack(models.Model):
     """representing a audio track"""
-    name = models.TextField(max_length = 30)
-    language = models.TextField(max_length = 5)
-    default = models.BooleanField(default = False)
-    forced = models.BooleanField(default = False)
+    name = models.CharField(max_length=30)
+    language = models.CharField(max_length=5)
+    default=models.BooleanField(default=False)
+    forced = models.BooleanField(default=False)
     uid = models.IntegerField()
-    codec = models.TextField(max_length = 20)
-    channels = models.TextField(max_length = 5)
-    bitrate = models.IntegerField(default = 0)
+    codec = models.CharField(max_length=20)
+    channels = models.CharField(max_length=5)
+    bitrate = models.IntegerField(default=0)
 
     file = models.ForeignKey('File', related_name = 'audioTracks')
 
@@ -462,12 +466,12 @@ class AudioTrack(models.Model):
 
 class SubtitleTrack(models.Model):
     """representing a subtitle track"""
-    name = models.TextField(max_length = 30)
-    language = models.TextField(max_length = 5)
-    default = models.BooleanField(default = False)
-    forced = models.BooleanField(default = False)
+    name = models.CharField(max_length=30)
+    language = models.CharField(max_length=5)
+    default=models.BooleanField(default=False)
+    forced = models.BooleanField(default=False)
     uid = models.IntegerField()
-    codec = models.TextField(max_length = 20)
+    codec = models.CharField(max_length=20)
 
     file = models.ForeignKey('File', related_name = 'subtitleTracks')
 
@@ -525,7 +529,7 @@ class Folder(models.Model):
             if file.type == 'dir':
                 report = file.scan(report)
         # if not belongs to a movie assign it and all subfiles to a movie
-        for file in self.files.filter(parent_id is 0):
+        for file in self.files.filter(parent_id=0):
             if file.movie is None and file.containsMovies():
                 newMovie = Movie()
                 newMovie.save()
