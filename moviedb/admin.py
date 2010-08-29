@@ -65,10 +65,14 @@ class MovieAdmin(admin.ModelAdmin):
     inlines = [
         TitleAdmin,
     ]
+    list_display = ('default_title', 'year',)
+
+class PersonAdmin(admin.ModelAdmin):
+    list_display = ('name', 'imdbID',)
     
 admin.site.register(Movie, MovieAdmin)
 admin.site.register(Genre)
-admin.site.register(Person)
+admin.site.register(Person, PersonAdmin)
 admin.site.register(Role)
 admin.site.register(Actor)
 admin.site.register(Country)

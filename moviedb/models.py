@@ -57,11 +57,16 @@ class Movie(models.Model):
             return '<Movie "unsaved">'
 
     def __unicode__(self):
+        return self.default_title()
+
+    def default_title(self):
         t = Title.objects.filter(movie__id = self.id).filter(default=True)
         if t.count():
             return t.get().text
         else:
-            return 'new Movie %d' % (self.id,)
+            return u'New Movie'
+    default_title.short_description = u'Original Title'
+
 
     def setIMDB(self, imdbID):
         '''set imdbID and get all the information out of imdb'''
@@ -137,7 +142,7 @@ class Movie(models.Model):
         if obj[0] != 'Nothing found.':
             for poster in obj[0]['posters']:
                 if poster['image']['size']=='original':
-                    newPoster = Posters.objects.create(remotePath = poster['image']['url'], sourceType = u'themoviedb')
+                    newPoster = Poster.objects.create(remotePath = poster['image']['url'], sourceType = u'themoviedb')
                     newPoster.download()
                     self.posters.add(newPoster)
 
