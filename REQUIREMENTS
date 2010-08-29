@@ -1,5 +1,5 @@
 Django==1.2.1
-django-piston==0.2.2
+-e hg+http://bitbucket.org/jespern/django-piston#egg=django-piston
 IMDbPY==4.6
 lxml==2.2.6
 PIL==1.1.7
