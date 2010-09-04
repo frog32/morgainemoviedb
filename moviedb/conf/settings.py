@@ -35,11 +35,16 @@ SCAN_EXCLUDE_FILES = getattr(settings, 'MDB_EXCLUDE_FILES',(
     '^\.',
 ))
 
-MOVIE_FILE_SUFFIXES = getattr(settings, 'MDB_MOVIE_FILE_SUFFIXES',{\
+MOVIE_FILE_SUFFIXES = getattr(settings, 'MDB_MOVIE_FILE_SUFFIXES',{
     '.avi':'movie',
     '.mkv':'movie',
     '.mov':'movie',
     '.mp3':'sound',
+})
+
+POSTER_THUMBSIZE = getattr(settings, 'MDB_POSTER_THUMBSIZE',{
+    'x':300,
+    'y':300,
 })
 
 

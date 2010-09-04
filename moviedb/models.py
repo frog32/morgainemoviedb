@@ -21,6 +21,7 @@ from moviedb.utils import *
 from django.db import models
 from django.utils.encoding import force_unicode
 from django.contrib.auth.models import User
+from django.core import files
 import os
 import subprocess
 import re
@@ -76,8 +77,10 @@ class Movie(models.Model):
         # insert titles
         for title in self.titles.all():
             title.delete()
-        self.titles.add(Title(text = m['title'], language = u'Original'))
+        self.titles.add(Title(text = m['title'], language = u'Original', default=True))
         for aka in m['akas']:
+            print aka
+            print type(aka)
             result=re.match('^(.*?)::\(([^)]+)\) +(\(([^)]*)\) +)?\[([a-z]{2})\]', aka, re.IGNORECASE)
             if result:
                 newTitle = Title(text = result.group(1), country = result.group(2), comment = result.group(4), language = result.group(5))
@@ -142,8 +145,9 @@ class Movie(models.Model):
         if obj[0] != 'Nothing found.':
             for poster in obj[0]['posters']:
                 if poster['image']['size']=='original':
-                    newPoster = Poster.objects.create(remotePath = poster['image']['url'], sourceType = u'themoviedb')
+                    newPoster = Poster(remote_path = poster['image']['url'], source_type = u'themoviedb')
                     newPoster.download()
+                    newPoster.generate_thumb()
                     self.posters.add(newPoster)
 
 
@@ -281,11 +285,11 @@ class Country(models.Model):
 class Poster(models.Model):
     """a poster belongs to a movie"""
     name = models.CharField(max_length=255, blank=True)
-    remotePath = models.TextField()
-    sourceType = models.TextField()
+    remote_path = models.TextField()
+    source_type = models.TextField()
     order = models.IntegerField(default=0)
-    imageOriginal = models.ImageField(upload_to = 'posters/original', blank=True)
-    imageThumb = models.ImageField(upload_to = 'posters/thumb', blank=True)
+    image_original = models.ImageField(upload_to = 'posters/original', blank=True)
+    image_thumb = models.ImageField(upload_to = 'posters/thumb', blank=True)
 
     movie = models.ForeignKey('Movie', related_name = 'posters')
 
@@ -295,19 +299,23 @@ class Poster(models.Model):
     def __unicode__(self):
         return self.name
     
-    def save(self, **kwargs):
-        super(Poster, self).save(**kwargs)
-        im=Image.open(self.imageOriginal.path)
-        thumbX=300
-        thumbY=300
-        im.thumbnail((thumbX, thumbY), Image.ANTIALIAS)
-        self.imageThumb='posters/thumb/%d.jpg' % self.id
-        #print self.imageThumb.path
-        im.save(self.imageThumb.path)
-        super(Poster, self).save(**kwargs)
+    def generate_thumb(self):
+        im=Image.open(self.image_original.path)
+        im.thumbnail((settings.POSTER_THUMBSIZE['x'], settings.POSTER_THUMBSIZE['y']), Image.ANTIALIAS)
+        #print self.image_thumb.path
+        img_temp = files.temp.NamedTemporaryFile(delete=True)
+        im.save(img_temp,'jpeg')
+        img_temp.flush()
+        self.image_thumb.save(self.name, files.File(img_temp))
+        self.save()
         
     def download(self):
-        pass
+        self.name = os.path.split(self.remote_path)[1]
+        download_temp = files.temp.NamedTemporaryFile(delete=True)
+        download_temp.write(urllib2.urlopen(self.remote_path).read())
+        download_temp.flush()
+        self.image_original.save(self.name, files.File(download_temp))
+        
         
 
 

@@ -26,7 +26,7 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
         fields: [
           {name:'id', type:'int'},
           {name:'order', type:'int'},
-          {name:'sourceType', type:'string'}
+          {name:'source_type', type:'string'}
         ]
       }),
       tpl: new Ext.XTemplate(

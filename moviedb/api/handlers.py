@@ -58,8 +58,8 @@ class MovieHandler(BaseHandler):
             )),
         )),
         ('posters',(
-            'imageThumb',
-            'imageOriginal',
+            'image_thumb',
+            'image_original',
         )),
         ('files',(
             'name',
