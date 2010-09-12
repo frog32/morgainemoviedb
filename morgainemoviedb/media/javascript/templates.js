@@ -1,7 +1,7 @@
 templates=new Object();
 templates.movieDetail=new Ext.XTemplate(
 	'<table class="movieDetail" width="100%">',
-	'<tpl for="titles"><tr><td colspan="2"><h1>{text}</h1></td></tr></tpl>',
+	'<tpl for="titles"><tr><td colspan="2"><h2>{text}</h2></td></tr></tpl>',
 	'<tr><td colspan="2"><tpl for="countries">{name}</tpl>',
 		'<tpl if="year!=null"> ({year})</tpl></td></tr>',
 	'<tr><td colspan="2"><tpl for="genres">{name}</tpl></td></tr>',
@@ -51,7 +51,7 @@ templates.movieDetailFiles=new Ext.XTemplate(
   		'<tr><td>Size</td><td>{[fm.fileSize(values["size"])]}</td></tr>',
   		'<tpl if="videoTracks.length"><tr><td>Video</td><td></tpl>',
   		'<tpl for="videoTracks">',
-  			'<tpl if="name"<p>Name: {name}</p></tpl>',
+  			'<tpl if="name"><p>Name: {name}</p></tpl>',
   			'<p>Codec: {[this.renderCodec(values["codec"])]}</p>',
   			'<p>Resolution: {width}x{height}</p>',
   		'</tpl>',

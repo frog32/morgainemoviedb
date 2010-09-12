@@ -70,20 +70,20 @@ class Movie(models.Model):
 
 
     def setIMDB(self, imdbID):
+        problems = []
         '''set imdbID and get all the information out of imdb'''
         m=imdb.IMDb(accessSystem='http', adultSearch=0).get_movie(imdbID)
         self.imdbID=int(imdbID)
+        print m['year']
         self.year=m['year']
         # insert titles
         for title in self.titles.all():
             title.delete()
         self.titles.add(Title(text = m['title'], language = u'Original', default=True))
         for aka in m['akas']:
-            print aka
-            print type(aka)
-            result=re.match('^(.*?)::\(([^)]+)\) +(\(([^)]*)\) +)?\[([a-z]{2})\]', aka, re.IGNORECASE)
+            result=re.match('^(.*?)::(.+) \(([^)]+)\)', aka, re.IGNORECASE)
             if result:
-                newTitle = Title(text = result.group(1), country = result.group(2), comment = result.group(4), language = result.group(5))
+                newTitle = Title(text = result.group(1), country = result.group(2), comment = result.group(3)) #, language = result.group(5))
                 newTitle.save()
                 self.titles.add(newTitle)
 
@@ -146,9 +146,13 @@ class Movie(models.Model):
             for poster in obj[0]['posters']:
                 if poster['image']['size']=='original':
                     newPoster = Poster(remote_path = poster['image']['url'], source_type = u'themoviedb')
-                    newPoster.download()
-                    newPoster.generate_thumb()
-                    self.posters.add(newPoster)
+                    try:
+                        newPoster.download()
+                        newPoster.generate_thumb()
+                        self.posters.add(newPoster)
+                    except:
+                        problems.append('Error downloading image')
+        return problems
 
 
     def searchOSHash(self):
@@ -310,6 +314,7 @@ class Poster(models.Model):
         self.save()
         
     def download(self):
+        print self.remote_path
         self.name = os.path.split(self.remote_path)[1]
         download_temp = files.temp.NamedTemporaryFile(delete=True)
         download_temp.write(urllib2.urlopen(self.remote_path).read())
