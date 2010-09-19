@@ -45,6 +45,9 @@ Ext.onReady(function(){
 //			}
 //		}
 //	}, this);
-	Ext.Ajax.on('requestexception', function(){Ext.MessageBox.alert('Error','ERROR: Serverrequest not possible.');}, this);
+	Ext.Ajax.on('requestexception', function(conn,response){
+	    console.log(response);
+	    Ext.MessageBox.alert('Error','ERROR: Serverrequest not possible.');
+	}, this);
 	
 });

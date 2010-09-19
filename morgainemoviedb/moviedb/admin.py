@@ -23,7 +23,8 @@ from django.contrib import admin
 import threading
 
 class PosterAdmin(admin.ModelAdmin):
-    exclude = ('imageThumb',)
+    #exclude = ('image_thumb',)
+    pass
 
 def scan_folders(modeladmin, request, queryset):
     class FolderScaner(threading.Thread):
@@ -79,3 +80,4 @@ admin.site.register(Country)
 admin.site.register(Poster, PosterAdmin)
 admin.site.register(File,FileAdmin)
 admin.site.register(Folder, FolderAdmin)
+admin.site.register(Title)

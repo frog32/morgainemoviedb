@@ -33,6 +33,17 @@ function bookmarkRenderer(val){
     return '';
 }
 
+function titleRenderer(val){
+    var movieTitle = 'New Movie';
+    Ext.each(val,function(title){
+        if(title.language == "Original"){
+            movieTitle = title.text
+            return false;
+        }
+    });
+    return movieTitle;
+}
+
 function languageListRenderer(list){
     var output='';
     Ext.each(list.split(','),function(lang){

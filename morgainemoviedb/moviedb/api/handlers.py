@@ -20,6 +20,7 @@ from piston.handler import BaseHandler
 from piston.utils import rc
 from moviedb.models import Movie
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 import imdb
 
 class MovieHandler(BaseHandler):
@@ -34,7 +35,8 @@ class MovieHandler(BaseHandler):
         )),
         ('titles',(
             'text',
-            'language',
+            'default',
+            'country',
         )),
         ('countries',(
             'name',
@@ -58,8 +60,8 @@ class MovieHandler(BaseHandler):
             )),
         )),
         ('posters',(
-            'imageThumb',
-            'imageOriginal',
+            'image_thumb',
+            'image_original',
         )),
         ('files',(
             'name',
@@ -91,8 +93,16 @@ class MovieHandler(BaseHandler):
     
     def update(self, request, id):
         m = Movie.objects.filter(id = id)[0]
-        m.setIMDB(request.PUT.get('imdbID'))
-        return rc.ALL_OK
+        result = m.setIMDB(request.PUT.get('imdbID'))
+        if result == []:
+            return rc.ALL_OK
+        else:
+            resp = HttpResponse(
+                simplejson.dumps(result)
+            )
+            resp.status_code = 400
+            return resp
+            
     
     
     
@@ -108,6 +118,7 @@ class MovieListHandler(BaseHandler):
         )),
         ('titles',(
             'text',
+            'country',
             'language',
         )),
         ('countries',(
@@ -127,14 +138,38 @@ class MovieBookmarkHandler(BaseHandler):
         Movie.objects.filter(id = movie_id).one().bookmarkedUsers.add(User)
         return {'movie_id':movie_id}
 
-
-class UserAuthstateHandler(BaseHandler):
-    allowed_methods = ('GET',)
+    
+class UserAuthenticateHandler(BaseHandler):
+    allowed_methods = ('GET', 'POST', 'DELETE')
     model = User
     fields = (
         'id',
         'username',
     )
+
+    def read(self, request):
+        if request.user.is_authenticated():
+            return request.user
+        else:
+            return False
+    
+    def create(self, request):
+        user = authenticate(username=request.POST.get('username'), password=request.POST.get('password'))
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return user
+            else:
+                # Return a 'disabled account' error message
+                return False
+        else:
+            # Return an 'invalid login' error message.
+            return False
+    
+    def delete(self, request):
+        logout(request)
+        return False
+        
 
 class ImdbSearchHandler(BaseHandler):
     allowed_methods = ('GET')
