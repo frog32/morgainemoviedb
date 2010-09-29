@@ -69,7 +69,7 @@ class MovieAdmin(admin.ModelAdmin):
     list_display = ('default_title', 'year',)
 
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('name', 'imdbID',)
+    list_display = ('name', 'imdb_id',)
     
 admin.site.register(Movie, MovieAdmin)
 admin.site.register(Genre)

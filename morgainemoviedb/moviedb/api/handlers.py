@@ -29,7 +29,7 @@ class MovieHandler(BaseHandler):
     fields = (
         'id',
         'year',
-        'imdbID',
+        'imdb_id',
         ('genres',(
             'name',
         )),
@@ -43,20 +43,20 @@ class MovieHandler(BaseHandler):
         )),
         ('writers',(
             'name',
-            'imdbID',
+            'imdb_id',
         )),
         ('directors',(
             'name',
-            'imdbID',
+            'imdb_id',
         )),
         ('actors',(
             ('person',(
                 'name',
-                'imdbID',
+                'imdb_id',
             )),
             ('role',(
                 'name',
-                'imdbID',
+                'imdb_id',
             )),
         )),
         ('posters',(
@@ -68,7 +68,7 @@ class MovieHandler(BaseHandler):
             'hash',
             'size',
             'type',
-            ('videoTracks',(
+            ('video_tracks',(
                 'name',
                 'codec',
                 'width',
@@ -93,7 +93,7 @@ class MovieHandler(BaseHandler):
     
     def update(self, request, id):
         m = Movie.objects.filter(id = id)[0]
-        result = m.setIMDB(request.PUT.get('imdbID'))
+        result = m.setIMDB(request.PUT.get('imdb_id'))
         if result == []:
             return rc.ALL_OK
         else:
@@ -179,7 +179,7 @@ class ImdbSearchHandler(BaseHandler):
             results = imdb.IMDb(accessSystem='http', adultSearch=0).search_movie(query)
             response=[]
             for m in results:
-                response.append({'imdbID':m.movieID, 'title':m['title'], 'year':m['year']})
+                response.append({'imdb_id':m.movieID, 'title':m['title'], 'year':m['year']})
             return response
             
         except IOError:
@@ -190,8 +190,9 @@ class MovieExportHandler(BaseHandler):
     allowed_methods = ('GET',)
     model = Movie
     fields = (
-        'imdbID',
-        ('movie_files',( 'hash', 'format', 'getVideoFormat', 'size')),
+        'imdb_id',
+        ('movie_files', ( 'hash', 'format', 'getVideoFormat', 'size')),
+        ('titles', ('text', 'default', 'country',)),
     )
     
     def read(self, request):

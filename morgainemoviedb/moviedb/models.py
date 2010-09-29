@@ -32,7 +32,7 @@ import imdb
 class Movie(models.Model):
     """representing a movie"""
     year = models.IntegerField(default=0)
-    imdbID = models.IntegerField(default=0)
+    imdb_id = models.IntegerField(default=0)
     mdbID = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
 
@@ -69,11 +69,11 @@ class Movie(models.Model):
     default_title.short_description = u'Original Title'
 
 
-    def setIMDB(self, imdbID):
+    def setIMDB(self, imdb_id):
         problems = []
-        '''set imdbID and get all the information out of imdb'''
-        m=imdb.IMDb(accessSystem='http', adultSearch=0).get_movie(imdbID)
-        self.imdbID=int(imdbID)
+        '''set imdb_id and get all the information out of imdb'''
+        m=imdb.IMDb(accessSystem='http', adultSearch=0).get_movie(imdb_id)
+        self.imdb_id=int(imdb_id)
         print m['year']
         self.year=m['year']
         # insert titles
@@ -118,7 +118,7 @@ class Movie(models.Model):
                         newRole = searchOrAddRole(person.currentRole)
                         Actor.objects.create(role = newRole, person = newPerson, movie = self)
                     else:
-                        newRole = Role.objects.create(name = person['name'], imdbID = 0)
+                        newRole = Role.objects.create(name = person['name'], imdb_id = 0)
                         Actor.objects.create(role = newRole, person = newPerson, movie = self)
 
         # insert writers
@@ -141,7 +141,7 @@ class Movie(models.Model):
 
         # get image data from themoviedb
         self.posters=[]
-        obj=themoviedb.getImages(self.imdbID)
+        obj=themoviedb.getImages(self.imdb_id)
         if obj[0] != 'Nothing found.':
             for poster in obj[0]['posters']:
                 if poster['image']['size']=='original':
@@ -227,42 +227,42 @@ class Genre(models.Model):
         return self.name
 
 def searchOrAddPerson(person):
-    query=Person.objects.filter(imdbID = person.getID())
+    query=Person.objects.filter(imdb_id = person.getID())
     if query.count():
         return query[0]
     else:
-        return Person.objects.create(imdbID = person.getID(), name = person['name'])
+        return Person.objects.create(imdb_id = person.getID(), name = person['name'])
     
 
 class Person(models.Model):
     """a real person"""
     name = models.CharField(max_length=100)
-    imdbID = models.IntegerField(default=0)
+    imdb_id = models.IntegerField(default=0)
 
     #moviesWriter = ManyToMany('Movie', tablename = 'movie_writers')
     #moviesDirector = ManyToMany('Movie', tablename = 'movie_directors')
     #roles = OneToMany('Role')
     def __repr__(self):
-        return '<Person "%s" (%d)>' % (self.name, self.imdbID)
+        return '<Person "%s" (%d)>' % (self.name, self.imdb_id)
         
     def __unicode__(self):
         return self.name
 
 
 def searchOrAddRole(role):
-    query=Role.objects.filter(imdbID = role.getID() if role.getID() != '' else 0).exclude(imdbID = 0)
+    query=Role.objects.filter(imdb_id = role.getID() if role.getID() != '' else 0).exclude(imdb_id = 0)
     if query.count():
         return query[0]
     else:
-        return Role.objects.create(imdbID = role.getID() if role.getID() else 0, name = role['name'])
+        return Role.objects.create(imdb_id = role.getID() if role.getID() else 0, name = role['name'])
 
 class Role(models.Model):
     name = models.CharField(max_length=100)
-    imdbID = models.IntegerField(default=0)
+    imdb_id = models.IntegerField(default=0)
 
     def __repr__(self):
-        if self.imdbID:
-            return '<Role "%s" (%d)>' % (self.name, self.imdbID)
+        if self.imdb_id:
+            return '<Role "%s" (%d)>' % (self.name, self.imdb_id)
         return '<Role "%s" (null)>' % (self.name,)
     
     def __unicode__(self):
@@ -338,7 +338,7 @@ class File(models.Model):
 
     movie = models.ForeignKey('Movie', related_name = 'files', blank=True, null = True)
     folder = models.ForeignKey('Folder', related_name = 'files')
-    #videoTracks = OneToMany('VideoTrack')
+    #video_tracks = OneToMany('VideoTrack')
     #audioTracks = OneToMany('AudioTrack')
     #subtitleTracks = OneToMany('SubtitleTrack')
     parent = models.ForeignKey('self', related_name = 'childs', blank=True, null = True)
@@ -376,7 +376,7 @@ class File(models.Model):
             if re.match('Stream #0.([0-9]+)(\([a-z]{3}\))?: Video:',stream):
                 #print 'video'
                 result=re.match('Stream #0.([0-9]+)(\([a-z]{3}\))?: Video: ([a-z0-9]+), [a-z0-9]+, ([0-9]+)x([0-9]+)', stream, re.IGNORECASE)
-                self.videoTracks.add(VideoTrack(\
+                self.video_tracks.add(VideoTrack(\
                         uid = result.group(1),\
                         codec = unicode(result.group(3)),\
                         width = result.group(4),\
@@ -439,9 +439,9 @@ class File(models.Model):
 
     def getVideoFormat(self):
         smalestWidth=0
-        for videoTrack in self.videoTracks.all():
-            if videoTrack.width < smalestWidth or smalestWidth == 0:
-                smalestWidth = videoTrack.width
+        for video_track in self.video_tracks.all():
+            if video_track.width < smalestWidth or smalestWidth == 0:
+                smalestWidth = video_track.width
             if smalestWidth >= 1920:
                 return u'1080p'
             if smalestWidth >= 1280:
@@ -462,7 +462,7 @@ class VideoTrack(models.Model):
     height = models.IntegerField()
     bitrate = models.IntegerField(default=0)
 
-    file = models.ForeignKey('File', related_name = 'videoTracks')
+    file = models.ForeignKey('File', related_name = 'video_tracks')
 
     def __repr__(self):
         return '<VideoTrack %s (%dx%d)>' % (self.codec, self.width, self.height)

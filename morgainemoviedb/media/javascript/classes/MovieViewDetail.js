@@ -168,10 +168,10 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
   		flex:1,
   		store: new Ext.data.JsonStore({
   			fields: [
-  				{name: 'imdbID', type: 'integer'},
+  				{name: 'imdb_id', type: 'integer'},
   				{name: 'title', type: 'string'},
   				{name: 'year', type: 'int'},
-  				{name: 'link', type: 'string', convert: function(v, rec) {return "http://akas.imdb.com/title/tt"+rec.imdbID}}	
+  				{name: 'link', type: 'string', convert: function(v, rec) {return "http://akas.imdb.com/title/tt"+rec.imdb_id}}	
   			]
   		}),
   		columns: [
@@ -213,7 +213,7 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
   					timeout:60000,
   					scope: this,
   					method: 'PUT',
-  					params:{imdbID:resultGrid.getSelectionModel().getSelected().data.imdbID},
+  					params:{imdb_id:resultGrid.getSelectionModel().getSelected().data.imdb_id},
   					success:function(response){
   						win.close();
   						this.fireEvent('changedMovie');
