@@ -18,7 +18,9 @@
 
 from django.conf.urls.defaults import *
 from piston.resource import Resource
-from moviedb.api.handlers import MovieHandler, MovieListHandler, MovieBookmarkHandler, UserAuthenticateHandler, ImdbSearchHandler
+from moviedb.api.handlers import MovieHandler, MovieListHandler,\
+    MovieBookmarkHandler, UserAuthenticateHandler, ImdbSearchHandler,\
+    MovieExportHandler
 
 movie_handler = Resource(MovieHandler)
 movie_list_handler = Resource(MovieListHandler)
@@ -28,10 +30,13 @@ user_authenticate_hander = Resource(UserAuthenticateHandler)
 
 imdb_search_handler = Resource(ImdbSearchHandler)
 
+movie_export_handler = Resource(MovieExportHandler)
+
 urlpatterns = patterns('',
     url(r'^movies\.(?P<emitter_format>.+)$', movie_list_handler, name = 'mdb.movies.list'),
     url(r'^movies/(?P<id>\d+)\.(?P<emitter_format>.+)$', movie_handler, name = 'mdb.movies'),
     url(r'^movies/(?P<id>\d+)/bookmark\.(?P<emitter_format>.+)$', movie_bookmark_handler, name = 'mdb.movies.bookmark'),
+    url(r'^export/movies.(?P<emitter_format>.+)$', movie_export_handler, name = 'mdb.evport.movies'),
 
     url(r'^users/authenticate\.(?P<emitter_format>.+)$', user_authenticate_hander, name = 'mdb.users.authenticate'),
 

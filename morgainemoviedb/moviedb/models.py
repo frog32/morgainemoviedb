@@ -186,6 +186,8 @@ class Movie(models.Model):
                 self.resolution = file.getVideoFormat()
         self.languages = u','.join(languages)
     
+    def movie_files(self):
+        return self.files.filter(type='movie')
 
     
 

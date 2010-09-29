@@ -172,7 +172,7 @@ class UserAuthenticateHandler(BaseHandler):
         
 
 class ImdbSearchHandler(BaseHandler):
-    allowed_methods = ('GET')
+    allowed_methods = ('GET',)
     
     def read(self, request, query):
         try:
@@ -185,3 +185,14 @@ class ImdbSearchHandler(BaseHandler):
         except IOError:
             return 'IOError'
     
+
+class MovieExportHandler(BaseHandler):
+    allowed_methods = ('GET',)
+    model = Movie
+    fields = (
+        'imdbID',
+        ('movie_files',( 'hash', 'format', 'getVideoFormat', 'size')),
+    )
+    
+    def read(self, request):
+        return Movie.objects.filter(active=True)
