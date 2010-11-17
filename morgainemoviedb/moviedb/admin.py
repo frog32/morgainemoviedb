@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with morgainemoviedb.  If not, see <http://www.gnu.org/licenses/>.
 
-from moviedb.models import Movie, Title, Genre, Person, Role, Actor, Country, Poster, File, AudioTrack, VideoTrack, SubtitleTrack, Folder
+from moviedb.models import Movie, Title, Genre, Person, Job, Country, Poster, File, AudioTrack, VideoTrack, SubtitleTrack, Folder
 
 from django.contrib import admin
 
@@ -69,13 +69,12 @@ class MovieAdmin(admin.ModelAdmin):
     list_display = ('default_title', 'year',)
 
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('name', 'imdb_id',)
+    list_display = ('name',)
     
 admin.site.register(Movie, MovieAdmin)
 admin.site.register(Genre)
 admin.site.register(Person, PersonAdmin)
-admin.site.register(Role)
-admin.site.register(Actor)
+admin.site.register(Job)
 admin.site.register(Country)
 admin.site.register(Poster, PosterAdmin)
 admin.site.register(File,FileAdmin)

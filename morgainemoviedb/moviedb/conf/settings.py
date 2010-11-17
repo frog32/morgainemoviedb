@@ -47,4 +47,5 @@ POSTER_THUMBSIZE = getattr(settings, 'MDB_POSTER_THUMBSIZE',{
     'y':300,
 })
 
+SCRAPPER = getattr(settings, 'MDB_SCRAPPER', 'tmdb_scrapper')
 

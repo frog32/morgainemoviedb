@@ -18,10 +18,15 @@
 
 from piston.handler import BaseHandler
 from piston.utils import rc
+from moviedb.conf import settings
 from moviedb.models import Movie
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-import imdb
+
+from moviedb.scrappers import ScrapperClient
+
+scrapper = ScrapperClient()
+scrapper.set_scrapper(settings.SCRAPPER)
 
 class MovieHandler(BaseHandler):
     allowed_methods = ('GET', 'PUT',)
@@ -41,22 +46,13 @@ class MovieHandler(BaseHandler):
         ('countries',(
             'name',
         )),
-        ('writers',(
-            'name',
-            'imdb_id',
-        )),
-        ('directors',(
-            'name',
-            'imdb_id',
-        )),
-        ('actors',(
+        ('cast',(
+            'id',
+            'character',
+            'department',
             ('person',(
+                'id',
                 'name',
-                'imdb_id',
-            )),
-            ('role',(
-                'name',
-                'imdb_id',
             )),
         )),
         ('posters',(
@@ -93,15 +89,15 @@ class MovieHandler(BaseHandler):
     
     def update(self, request, id):
         m = Movie.objects.filter(id = id)[0]
-        result = m.setIMDB(request.PUT.get('imdb_id'))
-        if result == []:
-            return rc.ALL_OK
-        else:
-            resp = HttpResponse(
-                simplejson.dumps(result)
-            )
-            resp.status_code = 400
-            return resp
+        scrapper.set_movie(m, request.PUT.get('id'))
+#        if result == []:
+        return rc.ALL_OK
+        # else:
+            # resp = HttpResponse(
+            #     simplejson.dumps(result)
+            # )
+            # resp.status_code = 400
+            # return resp
             
     
     
@@ -171,20 +167,11 @@ class UserAuthenticateHandler(BaseHandler):
         return False
         
 
-class ImdbSearchHandler(BaseHandler):
+class MovieLookupHandler(BaseHandler):
     allowed_methods = ('GET',)
     
     def read(self, request, query):
-        try:
-            results = imdb.IMDb(accessSystem='http', adultSearch=0).search_movie(query)
-            response=[]
-            for m in results:
-                response.append({'imdb_id':m.movieID, 'title':m['title'], 'year':m['year']})
-            return response
-            
-        except IOError:
-            return 'IOError'
-    
+        return scrapper.search_movies(query)
 
 class MovieExportHandler(BaseHandler):
     allowed_methods = ('GET',)

@@ -18,7 +18,7 @@
 
 import struct, os
 
-def hashFile(name): 
+def hash_file(name): 
   try: 
      
     longlongformat = 'q'  # long long 

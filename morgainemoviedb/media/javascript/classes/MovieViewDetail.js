@@ -53,10 +53,10 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
     	border:false,
     	items:[this.imagesView]
     });
-    this.findIMDB=new Ext.Button({
+    this.findLookup=new Ext.Button({
     	iconCls:'silk-film_link',
-    	text:'Find imdb',
-    	handler: this.serachIMDB,
+    	text:'Lookup movie',
+    	handler: this.serachLookupMovie,
     	scope:this
     });	
     /*this.searchOSHashButton=new Ext.Button({
@@ -107,7 +107,7 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
   		margins:0,
   		activeTab:0,
   		items:[this.movie,this.files,this.images,this.commentForm],
-  		tbar:[this.findIMDB,/*this.searchOSHashButton,this.changeImg,'-',this.bookmark,this.comment*/]
+  		tbar:[this.findLookup,/*this.searchOSHashButton,this.changeImg,'-',this.bookmark,this.comment*/]
   	});
   },
 
@@ -146,7 +146,7 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
     
   },
 
-  serachIMDB: function(){
+  serachLookupMovie: function(){
   	var titleSearch=new Ext.form.TextField({
   		width:400,
   		value:'',
@@ -154,7 +154,7 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
   			specialkey:function(field,e){
   				if(e.getKey()==e.ENTER)
   					Ext.Ajax.request({
-  						url:settings.api_url+'imdb/search/'+encodeURIComponent(titleSearch.getValue())+'.json',
+  						url:settings.api_url+'lookup/search/'+encodeURIComponent(titleSearch.getValue())+'.json',
   						success:function(response){
   							var obj=Ext.decode(response.responseText);
   							resultGrid.store.loadData(obj);
@@ -168,16 +168,16 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
   		flex:1,
   		store: new Ext.data.JsonStore({
   			fields: [
-  				{name: 'imdb_id', type: 'integer'},
+  				{name: 'id', type: 'integer'},
   				{name: 'title', type: 'string'},
   				{name: 'year', type: 'int'},
-  				{name: 'link', type: 'string', convert: function(v, rec) {return "http://akas.imdb.com/title/tt"+rec.imdb_id}}	
+  				{name: 'link', type: 'string'}	
   			]
   		}),
   		columns: [
   			{id:'title', header: 'Title', width: 160, sortable: true, dataIndex: 'title'},
   			{header: 'Year', width: 50, sortable: true, dataIndex: 'year'},
-  			{header: 'Link', width: 50, dataIndex:'link', renderer: imdbLinkRenderer}
+  			{header: 'Link', width: 50, dataIndex:'link', renderer: lookupLinkRenderer}
   		],
   		sm: new Ext.grid.RowSelectionModel({singleSelect:true}),
   		stripeRows: true,
@@ -185,11 +185,11 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
   		anchor:'0,0',
   		title: 'Movies'
   	});
-  	resultGrid.getSelectionModel().on('rowselect',function(sm,index,r){Ext.getCmp('imdbSearchSelect').setDisabled(0);})	
+  	resultGrid.getSelectionModel().on('rowselect',function(sm,index,r){Ext.getCmp('lookupSearchSelect').setDisabled(0);})	
 
   	var win = new Ext.Window({
   		layout:'vbox',
-  		title:'Search IMDB',
+  		title:'Movie Lookup',
   		layoutConfig: {
   			align : 'stretch',
   			pack  : 'start'
@@ -204,7 +204,7 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
   		],
   		buttons: [{
   			text:'Select',
-  			id:'imdbSearchSelect',
+  			id:'lookupSearchSelect',
   			disabled:true,
   			scope:this,
   			handler:function(){
@@ -213,7 +213,7 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
   					timeout:60000,
   					scope: this,
   					method: 'PUT',
-  					params:{imdb_id:resultGrid.getSelectionModel().getSelected().data.imdb_id},
+  					params:{id:resultGrid.getSelectionModel().getSelected().data.id},
   					success:function(response){
   						win.close();
   						this.fireEvent('changedMovie');
@@ -234,7 +234,7 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
   		multiline: true,
   		fn: function(button, text){
   			Ext.Ajax.request({
-  				url:'movie/imdbSet',
+  				url:'movie/lookupSet',
   				params:{action:'setMovieImage',movieID:this.movieID,url:text},
   				success:function(response){
   					var obj=Ext.decode(response.responseText);
@@ -269,7 +269,7 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
   onUpdateReceived: function(response){
 		this.data=Ext.decode(response.responseText);
 		this.movieID=this.data.id
-		this.findIMDB.setDisabled(false);
+		this.findLookup.setDisabled(false);
 		Ext.each(this.data.comments,function(comment,i){
 			this.data.comments[i].stars=new Array();
 			for(var j=0;j<Math.ceil(comment.rating);j++){

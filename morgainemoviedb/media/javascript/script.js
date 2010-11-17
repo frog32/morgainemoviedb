@@ -8,7 +8,7 @@ MorgaineMovieDB.model = {};
 MorgaineMovieDB.view = {};
 MorgaineMovieDB.util = {};
 
-function imdbLinkRenderer(val){
+function lookupLinkRenderer(val){
     return '<a href="'+val+'" target="_blank">link</a>';
 }
 

@@ -17,7 +17,8 @@
 # along with morgainemoviedb.  If not, see <http://www.gnu.org/licenses/>.
 
 from moviedb.conf import settings
-from moviedb.utils import *
+from moviedb import tmdb
+from moviedb.opensubtitles import hash_file
 from django.db import models
 from django.utils.encoding import force_unicode
 from django.contrib.auth.models import User
@@ -32,8 +33,9 @@ import imdb
 class Movie(models.Model):
     """representing a movie"""
     year = models.IntegerField(default=0)
-    imdb_id = models.IntegerField(default=0)
-    mdbID = models.IntegerField(default=0)
+    imdb_id = models.CharField(max_length=12, blank=True)
+    tmdb_id = models.IntegerField(default=0)
+    tmdb_version = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
 
     duration = models.IntegerField(default=0)
@@ -41,16 +43,10 @@ class Movie(models.Model):
     resolution = models.CharField(blank=True, max_length=20)
 
     genres = models.ManyToManyField('Genre', related_name = 'movies', blank=True)
-    writers = models.ManyToManyField('Person', related_name = 'moviesWriter', db_table = 'moviedb_movie_writers', blank=True)
-    directors = models.ManyToManyField('Person', related_name = 'moviesDirector', db_table = 'moviedb_movie_directors', blank=True)
-    cast = models.ManyToManyField('Person', through = 'Actor', blank=True)
     countries = models.ManyToManyField('Country', related_name = 'movies', blank=True)
     
     bookmarkedMovies = models.ManyToManyField(User, related_name = 'bookmarkedUsers', blank=True, through = 'Bookmark')
-    #files = OneToMany('File')
-    #posters = OneToMany('Poster')
-    #comments = OneToMany('Comment')
-
+    
     def __repr__(self):
         if self.id:
             return '<Movie "%d">' % (self.id,)
@@ -67,108 +63,6 @@ class Movie(models.Model):
         else:
             return u'New Movie'
     default_title.short_description = u'Original Title'
-
-
-    def setIMDB(self, imdb_id):
-        problems = []
-        '''set imdb_id and get all the information out of imdb'''
-        m=imdb.IMDb(accessSystem='http', adultSearch=0).get_movie(imdb_id)
-        self.imdb_id=int(imdb_id)
-        print m['year']
-        self.year=m['year']
-        # insert titles
-        for title in self.titles.all():
-            title.delete()
-        self.titles.add(Title(text = m['title'], language = u'Original', default=True))
-        for aka in m['akas']:
-            result=re.match('^(.*?)::(.+) \(([^)]+)\)', aka, re.IGNORECASE)
-            if result:
-                newTitle = Title(text = result.group(1), country = result.group(2), comment = result.group(3)) #, language = result.group(5))
-                newTitle.save()
-                self.titles.add(newTitle)
-
-        # insert genres
-        self.genres=[]
-        for gen in m['genres']:
-                self.genres.add(searchOrAddGenre(gen))
-        # insert countries
-        self.countries=[]
-        for country in m['countries']:
-            query = Country.objects.filter(name = country)
-            if query.count():
-                self.countries.add(query[0])
-            else:
-                newCountry = Country(name = country)
-                newCountry.save()
-                self.countries.add(newCountry)
-        # insert cast
-        for actor in self.actors.all():
-            actor.delete()
-        if 'cast' in m.keys():
-            for person in m['cast']:
-                newPerson = searchOrAddPerson(person)
-                if hasattr(person.currentRole,'__iter__'):
-                    for role in person.currentRole:
-                        # there are multiple roles for the same person
-                        newRole = searchOrAddRole(role)
-                        Actor.objects.create(role = newRole, person = newPerson, movie = self)
-                else:
-                    # this person only plays one role
-                    if 'name' in person.currentRole.keys():
-                        newRole = searchOrAddRole(person.currentRole)
-                        Actor.objects.create(role = newRole, person = newPerson, movie = self)
-                    else:
-                        newRole = Role.objects.create(name = person['name'], imdb_id = 0)
-                        Actor.objects.create(role = newRole, person = newPerson, movie = self)
-
-        # insert writers
-        self.writers = []
-        if hasattr(m['writer'],'__iter__'):
-            for person in m['writer']:
-                self.writers.add(searchOrAddPerson(person))
-        else:
-            person = m['writer']
-            self.writers.add(searchOrAddPerson(person))
-            
-        # insert directors
-        self.directors=[]
-        if hasattr(m['director'],'__iter__'):
-            for person in m['director']:
-                self.directors.add(searchOrAddPerson(person))
-        else:
-            person = m['director']
-            self.directors.add(searchOrAddPerson(person))
-
-        # get image data from themoviedb
-        self.posters=[]
-        obj=themoviedb.getImages(self.imdb_id)
-        if obj[0] != 'Nothing found.':
-            for poster in obj[0]['posters']:
-                if poster['image']['size']=='original':
-                    newPoster = Poster(remote_path = poster['image']['url'], source_type = u'themoviedb')
-                    try:
-                        newPoster.download()
-                        newPoster.generate_thumb()
-                        self.posters.add(newPoster)
-                    except:
-                        problems.append('Error downloading image')
-        return problems
-
-
-    def searchOSHash(self):
-        '''Checks if os hash matches an entry on themoviedb'''
-        for file in self.files:
-            if file.type == 'movie':
-                result=themoviedb.lookupOSHash(file.hash)
-                if not result[0] == 'Nothing found.':
-                    if len(result)>1:
-                        #print '###multiple results###'
-                        #print result
-                        return 'multiple results'
-                    self.setIMDB(result[0]['imdb_id'][2:])
-                    return 'Found Match for '+result[0]['name']
-                else:
-                    return 'No Match found'
     
     def save(self, **kwargs):
         self.update()
@@ -207,79 +101,49 @@ class Title(models.Model):
     def __unicode__(self):
         return self.text
 
-
-def searchOrAddGenre(genre):
-    query=Genre.objects.filter(name = genre)
-    if query.count():
-        return query[0]
-    else:
-        return Genre.objects.create(name = genre)
-
 class Genre(models.Model):
     """genre of a movie"""
     name = models.CharField(max_length=20, unique=True)
+    tmdb_id = models.IntegerField(default=0)
     # movies manytomany
 
     def __repr__(self):
       return '<Genre "%s">' % (self.name,)
 
     def __unicode__(self):
-        return self.name
-
-def searchOrAddPerson(person):
-    query=Person.objects.filter(imdb_id = person.getID())
-    if query.count():
-        return query[0]
-    else:
-        return Person.objects.create(imdb_id = person.getID(), name = person['name'])
-    
+        return self.name    
 
 class Person(models.Model):
     """a real person"""
     name = models.CharField(max_length=100)
-    imdb_id = models.IntegerField(default=0)
+    tmdb_id = models.IntegerField(default=0)
 
     #moviesWriter = ManyToMany('Movie', tablename = 'movie_writers')
     #moviesDirector = ManyToMany('Movie', tablename = 'movie_directors')
     #roles = OneToMany('Role')
     def __repr__(self):
-        return '<Person "%s" (%d)>' % (self.name, self.imdb_id)
+        return '<Person "%s" (%d)>' % (self.name, self.tmdb_id)
         
     def __unicode__(self):
         return self.name
 
-
-def searchOrAddRole(role):
-    query=Role.objects.filter(imdb_id = role.getID() if role.getID() != '' else 0).exclude(imdb_id = 0)
-    if query.count():
-        return query[0]
-    else:
-        return Role.objects.create(imdb_id = role.getID() if role.getID() else 0, name = role['name'])
-
-class Role(models.Model):
-    name = models.CharField(max_length=100)
-    imdb_id = models.IntegerField(default=0)
-
+class Job(models.Model):
+    character = models.CharField(max_length=100)
+    department = models.CharField(max_length=100)
+    person = models.ForeignKey(Person)
+    movie = models.ForeignKey(Movie, related_name='cast')
+    
+    class Meta:
+        ordering = ('department',)
     def __repr__(self):
-        if self.imdb_id:
-            return '<Role "%s" (%d)>' % (self.name, self.imdb_id)
-        return '<Role "%s" (null)>' % (self.name,)
+        return '<Job "%s">' % (self.name,)
     
     def __unicode__(self):
-        return self.name
-            
-
-class Actor(models.Model):
-    movie = models.ForeignKey('Movie', related_name = 'actors')
-    person = models.ForeignKey('Person')
-    role = models.ForeignKey('Role')
-    
-    def __unicode__(self):
-        return '%s is playing %s in %s' % (self.person.name, self.role.name, self.movie.id)
-        
+        return self.character        
 
 class Country(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=10, unique=True)
     
     def __repr__(self):
         return '<Country "%s">' % (self.name,)
@@ -296,6 +160,7 @@ class Poster(models.Model):
     order = models.IntegerField(default=0)
     image_original = models.ImageField(upload_to = 'posters/original', blank=True)
     image_thumb = models.ImageField(upload_to = 'posters/thumb', blank=True)
+    tmdb_id = models.CharField(default='', max_length=25)
 
     movie = models.ForeignKey('Movie', related_name = 'posters')
 
@@ -361,7 +226,7 @@ class File(models.Model):
         else:
             self.type = u'unknown'
         if not self.type == u'dir':
-            self.hash=unicode(opensubtitles.hashFile(self.path))
+            self.hash=unicode(hash_file(self.path))
 
     def getTracks(self):
         '''get metadata with ffmpeg'''
@@ -517,6 +382,7 @@ class Folder(models.Model):
         return self.path
     
     def scan(self):
+        # todo: outsource this into a stragedy
         dirList=os.listdir(self.path)
         # add new files
         report = {\

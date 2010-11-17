@@ -19,7 +19,7 @@
 from django.conf.urls.defaults import *
 from piston.resource import Resource
 from moviedb.api.handlers import MovieHandler, MovieListHandler,\
-    MovieBookmarkHandler, UserAuthenticateHandler, ImdbSearchHandler,\
+    MovieBookmarkHandler, UserAuthenticateHandler, MovieLookupHandler,\
     MovieExportHandler
 
 movie_handler = Resource(MovieHandler)
@@ -28,7 +28,7 @@ movie_bookmark_handler = Resource(MovieBookmarkHandler)
 
 user_authenticate_hander = Resource(UserAuthenticateHandler)
 
-imdb_search_handler = Resource(ImdbSearchHandler)
+movie_lookup_handler = Resource(MovieLookupHandler)
 
 movie_export_handler = Resource(MovieExportHandler)
 
@@ -40,6 +40,6 @@ urlpatterns = patterns('',
 
     url(r'^users/authenticate\.(?P<emitter_format>.+)$', user_authenticate_hander, name = 'mdb.users.authenticate'),
 
-    url(r'^imdb/search/(?P<query>.+)\.(?P<emitter_format>[^.]+)$', imdb_search_handler, name = 'mdb_imdb_search')
+    url(r'^lookup/search/(?P<query>.+)\.(?P<emitter_format>[^.]+)$', movie_lookup_handler, name = 'mdb_lookup_search')
    
 )
