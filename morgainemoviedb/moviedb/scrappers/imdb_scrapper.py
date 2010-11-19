@@ -1,4 +1,7 @@
-def search_movie
+# this scrapper is not valid
+# this are just fragments of the old imdb scraper
+
+def search_movie():
 results = imdb.IMDb(accessSystem='http', adultSearch=0).search_movie(query)
 
 def setIMDB(self, imdb_id):
@@ -9,8 +12,7 @@ def setIMDB(self, imdb_id):
     self.imdb_id=int(imdb_id)
     self.year=m['year']
     # insert titles
-    for title in self.titles.all():
-        title.delete()
+    self.titles.all().delete()
     self.titles.add(Title(text = m['title'], language = u'Original', default=True))
     for aka in m['akas']:
         result=re.match('^(.*?)::(.+) \(([^)]+)\)', aka, re.IGNORECASE)

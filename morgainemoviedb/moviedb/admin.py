@@ -44,12 +44,15 @@ class FolderAdmin(admin.ModelAdmin):
 
 class VideoTrackAdmin(admin.TabularInline):
     model = VideoTrack
+    extra = 0
 
 class AudioTrackAdmin(admin.TabularInline):
     model = AudioTrack
+    extra = 0
 
 class SubtitleTrackAdmin(admin.TabularInline):
     model = SubtitleTrack
+    extra = 0
 
 class FileAdmin(admin.ModelAdmin):
     inlines = [
@@ -60,13 +63,14 @@ class FileAdmin(admin.ModelAdmin):
     
 class TitleAdmin(admin.TabularInline):
     model = Title
-    extra = 1
+    extra = 0
     
 class MovieAdmin(admin.ModelAdmin):
     inlines = [
         TitleAdmin,
     ]
     list_display = ('default_title', 'year',)
+    filter_horizontal = ('genres', 'countries')
 
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('name',)

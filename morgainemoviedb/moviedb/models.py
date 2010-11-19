@@ -34,8 +34,8 @@ class Movie(models.Model):
     """representing a movie"""
     year = models.IntegerField(default=0)
     imdb_id = models.CharField(max_length=12, blank=True)
-    tmdb_id = models.IntegerField(default=0)
-    tmdb_version = models.IntegerField(default=0)
+    tmdb_id = models.IntegerField(default=0, blank=True)
+    tmdb_version = models.IntegerField(default=0, blank=True)
     active = models.BooleanField(default=True)
 
     duration = models.IntegerField(default=0)

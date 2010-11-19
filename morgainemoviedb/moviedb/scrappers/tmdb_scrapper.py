@@ -2,7 +2,7 @@ import urllib2
 import json
 import os
 
-from moviedb.models import Genre, Person, Country, Job, Poster
+from moviedb.models import Genre, Person, Country, Job, Poster, Title
 
 config = {}
 config['apikey'] = "a470dddae9a3fb7db6791108133cea05"
@@ -21,27 +21,31 @@ def set_movie(movie, tmdb_id):
     movie.tmdb_version = result['version']
 
     # insert titles
-    movie.titles = []
+    movie.titles.all().delete()
+    movie.titles.add(Title(text = result['name'], language = u'Original', default=True))
 
     # insert genres
+    movie.genres = []
     for genre in result['genres']:
         movie.genres.add(search_or_add_genre(genre))
     # insert countries
+    movie.countries = []
     for country in result['countries']:
         movie.countries.add(search_or_add_country(country))
     # insert cast
-    movie.cast = []
+    movie.cast.all().delete()
     for job in result['cast']:
         person = search_or_add_person(job)
         Job.objects.create(character=job['character'], department=job['department'], movie=movie, person=person)
     # get image data from themoviedb
-    available_posters = (poster['tmdb_id'] for poster in movie.posters.all())
+    available_posters = (poster.tmdb_id for poster in movie.posters.all())
     for poster in result['posters']:
         if poster['image']['size']!='original':
             continue
         if poster['image']['id'] in available_posters:
             continue
         newPoster = Poster(remote_path = poster['image']['url'], source_type = u'themoviedb', tmdb_id=poster['image']['id'])
+        print 'here 1'
         try:
             newPoster.download()
             newPoster.generate_thumb()
