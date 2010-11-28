@@ -19,7 +19,7 @@
 from piston.handler import BaseHandler
 from piston.utils import rc
 from moviedb.conf import settings
-from moviedb.models import Movie
+from moviedb.models import Movie, MovieList, MovieExport, MovieXBMC
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 
@@ -105,7 +105,7 @@ class MovieHandler(BaseHandler):
 
 class MovieListHandler(BaseHandler):
     allowed_methods = ('GET',)
-    model = Movie
+    model = MovieList
     fields = (
         'id',
         'year',
@@ -175,7 +175,7 @@ class MovieLookupHandler(BaseHandler):
 
 class MovieExportHandler(BaseHandler):
     allowed_methods = ('GET',)
-    model = Movie
+    model = MovieExport
     fields = (
         'imdb_id',
         ('movie_files', ( 'hash', 'format', 'getVideoFormat', 'size')),
@@ -184,3 +184,28 @@ class MovieExportHandler(BaseHandler):
     
     def read(self, request):
         return Movie.objects.filter(active=True)
+        
+
+class XBMCListHandler(BaseHandler):
+    allowed_methods = ('GET',)
+    model = MovieXBMC
+    fields = (
+        'id',
+        'year',
+        ('genres',(
+            'name',
+        )),
+        ('titles',(
+            'text',
+            'country',
+            'language',
+        )),
+        ('countries',(
+            'name',
+        )),
+        'languages',
+        'duration',
+    )
+
+    def read(self,request):
+        return Movie.objects.all()
