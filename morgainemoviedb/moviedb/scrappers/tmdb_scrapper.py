@@ -57,6 +57,8 @@ def set_movie(movie, tmdb_id):
 
 def search_movies(query):
     results = _tmdb_get_data('movie.search', {'query':urllib2.quote(query)})
+    if type(results[0]) != type({}):
+        return []
     response = []
     for m in results:
         response.append({'id':m['id'], 'title':m['name'], 'year':m['released'][0:4], 'link':m['url']})
