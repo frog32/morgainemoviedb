@@ -125,7 +125,7 @@ class MovieListHandler(BaseHandler):
     )
     
     def read(self,request):
-        return Movie.objects.all()
+        return MovieList.objects.all()
         
 class MovieBookmarkHandler(BaseHandler):
     allowed_methods = ('POST')
@@ -183,7 +183,7 @@ class MovieExportHandler(BaseHandler):
     )
     
     def read(self, request):
-        return Movie.objects.filter(active=True)
+        return MovieExport.objects.filter(active=True)
         
 
 class XBMCListHandler(BaseHandler):
@@ -208,4 +208,4 @@ class XBMCListHandler(BaseHandler):
     )
 
     def read(self,request):
-        return Movie.objects.all()
+        return MovieXBMC.objects.all()
