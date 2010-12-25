@@ -89,6 +89,17 @@ class Movie(models.Model):
     def file_path(self):
         return self.movie_files()[0].path
 
+class MovieList(Movie):
+    class Meta:
+        proxy = True
+
+class MovieExport(Movie):
+    class Meta:
+        proxy = True
+
+class MovieXBMC(Movie):
+    class Meta:
+        proxy = True
     
 
 class Title(models.Model):
@@ -187,7 +198,7 @@ class Poster(models.Model):
         self.save()
         
     def download(self):
-        print self.remote_path
+        # print self.remote_path
         self.name = os.path.split(self.remote_path)[1]
         download_temp = files.temp.NamedTemporaryFile(delete=True)
         download_temp.write(urllib2.urlopen(self.remote_path).read())

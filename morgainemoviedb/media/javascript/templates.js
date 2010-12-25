@@ -6,7 +6,7 @@ templates.movieDetail=new Ext.XTemplate(
 		'<tpl if="year!=null"> ({year})</tpl></td></tr>',
 	'<tr><td colspan="2"><tpl for="genres">{name}</tpl></td></tr>',
 	'<tr><td valign="top">',
-	'<tpl if="imdb_id!=null"><p><a href="http://www.imdb.com/title/tt{imdb_id}/" target="_blank">IMDB</a></p></tpl>',
+    // '<tpl if="imdb_id!=null"><p><a href="http://www.imdb.com/title/tt{imdb_id}/" target="_blank">IMDB</a></p></tpl>',
 	'<p>Duration:{[durationRenderer(values["duration"])]}</p>',
 	'</td><td align="right">',
 	'<tpl if="posters.length">',
