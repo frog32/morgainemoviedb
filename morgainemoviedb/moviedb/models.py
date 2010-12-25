@@ -72,7 +72,7 @@ class Movie(models.Model):
         super(Movie,self).save(**kwargs)
     
     def update(self):
-        languages =[]
+        languages = []
         self.duration = 0
         for file in self.files.all():
             self.duration = self.duration + file.duration

@@ -32,8 +32,8 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
       tpl: new Ext.XTemplate(
         '<tpl for=".">',
         '<div id="component_{id}" class="x-combo-list-item">',
-        '<img align="top" height="30px" width="30px" src="images/posters/thumb/{id}.jpg" />',
-        '{sourceType}</div>',
+        '<img align="top" height="30px" width="30px" src="'+settings.media_url+'{id}" />',
+        '</div>',
         '</tpl>'
       ),
       autoHeight:true,

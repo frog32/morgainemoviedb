@@ -56,6 +56,7 @@ class MovieHandler(BaseHandler):
             )),
         )),
         ('posters',(
+            'id',
             'image_thumb',
             'image_original',
         )),
