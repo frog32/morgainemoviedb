@@ -62,6 +62,7 @@ class MovieHandler(BaseHandler):
         )),
         ('files',(
             'name',
+            'path',
             'hash',
             'size',
             'type',

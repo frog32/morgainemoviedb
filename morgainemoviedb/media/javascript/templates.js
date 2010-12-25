@@ -39,6 +39,7 @@ templates.movieDetailFiles=new Ext.XTemplate(
   '<tpl for="files">',
     '<tpl if="type == \'movie\'">',
       '<tr><td colspan="2">{name}</td></tr>',
+      '<tr><td colspan="2">{path}</td></tr>',
       '<tr><td colspan="2">{hash}</td></tr>',
   		'<tr><td>Size</td><td>{[fm.fileSize(values["size"])]}</td></tr>',
   		'<tpl if="video_tracks.length"><tr><td>Video</td><td></tpl>',
