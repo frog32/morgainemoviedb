@@ -25,14 +25,14 @@ MorgaineMovieDB.view.MovieViewDetail = Ext.extend(MorgaineMovieDB.view.AbstractV
         autoHeight:true,
         fields: [
           {name:'id', type:'int'},
-          {name:'order', type:'int'},
-          {name:'source_type', type:'string'}
+          {name:'image_thumb', type:'string'},
+          {name:'image_original', type:'string'}
         ]
       }),
       tpl: new Ext.XTemplate(
         '<tpl for=".">',
         '<div id="component_{id}" class="x-combo-list-item">',
-        '<img align="top" height="30px" width="30px" src="'+settings.media_url+'{id}" />',
+        '<img align="top" src="'+settings.media_url+'{image_thumb}" />',
         '</div>',
         '</tpl>'
       ),
