@@ -45,7 +45,6 @@ def set_movie(movie, tmdb_id):
         if poster['image']['id'] in available_posters:
             continue
         newPoster = Poster(remote_path = poster['image']['url'], source_type = u'themoviedb', tmdb_id=poster['image']['id'])
-        print 'here 1'
         try:
             newPoster.download()
             newPoster.generate_thumb()
@@ -56,7 +55,7 @@ def set_movie(movie, tmdb_id):
     movie.save()
 
 def search_movies(query):
-    results = _tmdb_get_data('movie.search', {'query':urllib2.quote(query)})
+    results = _tmdb_get_data('movie.search', {'query':urllib2.quote(query.encode("utf-8"))})
     if type(results[0]) != type({}):
         return []
     response = []
