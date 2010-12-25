@@ -184,3 +184,26 @@ class MovieExportHandler(BaseHandler):
     
     def read(self, request):
         return Movie.objects.filter(active=True)
+        
+
+class XBMCListHandler(BaseHandler):
+    allowed_methods = ('GET',)
+    model = Movie
+    fields = (
+        'id',
+        'year',
+        ('genres',(
+            'name',
+        )),
+        'default_title',
+        'default_poster',
+        'file_path',
+        ('countries',(
+            'name',
+        )),
+        'languages',
+        'duration',
+    )
+
+    def read(self,request):
+        return Movie.objects.all()

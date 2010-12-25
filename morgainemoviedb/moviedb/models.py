@@ -64,6 +64,9 @@ class Movie(models.Model):
             return u'New Movie'
     default_title.short_description = u'Original Title'
     
+    def default_poster(self):
+        return self.posters.all()[0].image_original.url
+    
     def save(self, **kwargs):
         self.update()
         super(Movie,self).save(**kwargs)
@@ -82,6 +85,9 @@ class Movie(models.Model):
     
     def movie_files(self):
         return self.files.filter(type='movie')
+    
+    def file_path(self):
+        return self.movie_files()[0].path
 
     
 
