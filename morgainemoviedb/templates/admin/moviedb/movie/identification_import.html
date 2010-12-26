@@ -1,0 +1,10 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% block content %}
+<h2>Movie Identification Import</h2>
+    <ul>
+        {% for line in output %}
+            <li>{{line}}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

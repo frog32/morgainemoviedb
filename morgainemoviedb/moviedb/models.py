@@ -19,6 +19,7 @@
 from moviedb.conf import settings
 from moviedb import tmdb
 from moviedb.opensubtitles import hash_file
+from moviedb.managers import FileManager
 from django.db import models
 from django.utils.encoding import force_unicode
 from django.contrib.auth.models import User
@@ -210,6 +211,7 @@ class Poster(models.Model):
 
 class File(models.Model):
     """representing a file"""
+    objects = FileManager()
     path = models.TextField()
     name = models.TextField()
     type = models.CharField(max_length=20)
