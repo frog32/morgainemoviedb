@@ -100,7 +100,8 @@ class MovieAdmin(admin.ModelAdmin):
                             filequery = File.objects.media_search(xml_file.find('hash').text, xml_file.find('size').text)
                             if filequery.count() == 1:
                                 movie = filequery.get().movie
-                                scrapper.set_movie(movie, xml_movie.find('tmdb_id').text)
+                                scrapper.set_movie(movie, int(xml_movie.find('tmdb_id').text))
+                                print "Set movie %s" % (movie.default_title,)
                                 output.append("Set movie %s" % (movie.default_title,))
                     return render_to_response('admin/moviedb/movie/identification_import.html',
                         {'output':output})
