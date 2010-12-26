@@ -435,8 +435,8 @@ class Folder(models.Model):
             if file.type == 'dir':
                 report = file.scan(report)
         # if not belongs to a movie assign it and all subfiles to a movie
-        for file in self.files.filter(parent__isnull=True):
-            if file.movie is None and file.containsMovies():
+        for file in self.files.filter(parent__isnull=True).filter(movie__isnull=True):
+            if file.containsMovies():
                 newMovie = Movie()
                 newMovie.save()
                 file.setMovie(newMovie)
