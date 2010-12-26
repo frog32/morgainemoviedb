@@ -220,7 +220,7 @@ class File(models.Model):
     size = models.IntegerField(default=0)
     duration = models.IntegerField(default=0)
 
-    movie = models.ForeignKey('Movie', related_name = 'files', blank=True, null = True)
+    movie = models.ForeignKey('Movie', related_name = 'files', blank=True, null = True, on_delete=models.SET_NULL)
     folder = models.ForeignKey('Folder', related_name = 'files')
     #video_tracks = OneToMany('VideoTrack')
     #audioTracks = OneToMany('AudioTrack')
