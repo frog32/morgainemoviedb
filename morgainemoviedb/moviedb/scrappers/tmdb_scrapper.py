@@ -14,6 +14,8 @@ config['urls']['media.getInfo'] = "http://api.themoviedb.org/2.1/Media.getInfo/%
 
 def set_movie(movie, tmdb_id):
     result = _tmdb_get_data('movie.getInfo', {'movie_id':tmdb_id})[0]
+    if result == u'Nothing found.':
+        return False
     #set movie data
     movie.tmdb_id = result['id']
     movie.imdb_id = result['imdb_id']
@@ -53,6 +55,7 @@ def set_movie(movie, tmdb_id):
             raise
             print "couldn't load this image"
     movie.save()
+    return True
 
 def search_movies(query):
     results = _tmdb_get_data('movie.search', {'query':urllib2.quote(query.encode("utf-8"))})

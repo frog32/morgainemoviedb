@@ -102,8 +102,10 @@ class MovieAdmin(admin.ModelAdmin):
                                 movie = filequery.get().movie
                                 if movie.tmdb_id != 0:
                                     continue
-                                scrapper.set_movie(movie, int(xml_movie.find('tmdb_id').text))
-                                output.append("Set movie %s" % (movie.default_title(),))
+                                if scrapper.set_movie(movie, int(xml_movie.find('tmdb_id').text)):
+                                    output.append("Set movie %s" % (movie.default_title(),))
+                                else:
+                                    output.append("Error setting %s to movie %s" % (xml_movie.find('tmdb_id').text, movie.id))
                     return render_to_response('admin/moviedb/movie/identification_import.html',
                         {'output':output})
                 return render_to_response('admin/moviedb/movie/compare.html')
