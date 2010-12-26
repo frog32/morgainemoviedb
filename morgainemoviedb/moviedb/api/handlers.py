@@ -28,6 +28,16 @@ from moviedb.scrappers import ScrapperClient
 scrapper = ScrapperClient()
 scrapper.set_scrapper(settings.SCRAPPER)
 
+class DjangoAuthentication(object):
+    """
+    Django authentication. 
+    """    
+    def is_authenticated(self, request):
+        return request.user.is_authenticated()
+        
+    def challenge(self):
+        return rc.FORBIDDEN
+
 class MovieHandler(BaseHandler):
     allowed_methods = ('GET', 'PUT',)
     model = Movie

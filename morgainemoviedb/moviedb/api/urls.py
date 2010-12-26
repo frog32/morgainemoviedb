@@ -20,19 +20,21 @@ from django.conf.urls.defaults import *
 from piston.resource import Resource
 from moviedb.api.handlers import MovieHandler, MovieListHandler,\
     MovieBookmarkHandler, UserAuthenticateHandler, MovieLookupHandler,\
-    MovieExportHandler, XBMCListHandler
+    MovieExportHandler, XBMCListHandler, DjangoAuthentication
 
-movie_handler = Resource(MovieHandler)
-movie_list_handler = Resource(MovieListHandler)
-movie_bookmark_handler = Resource(MovieBookmarkHandler)
+auth = DjangoAuthentication()
+
+movie_handler = Resource(handler=MovieHandler, authentication=auth)
+movie_list_handler = Resource(handler=MovieListHandler, authentication=auth)
+movie_bookmark_handler = Resource(handler=MovieBookmarkHandler, authentication=auth)
 
 user_authenticate_hander = Resource(UserAuthenticateHandler)
 
-movie_lookup_handler = Resource(MovieLookupHandler)
+movie_lookup_handler = Resource(handler=MovieLookupHandler, authentication=auth)
 
-movie_export_handler = Resource(MovieExportHandler)
+movie_export_handler = Resource(handler=MovieExportHandler, authentication=auth)
 
-xbmc_list_handler = Resource(XBMCListHandler)
+xbmc_list_handler = Resource(handler=XBMCListHandler, authentication=auth)
 
 urlpatterns = patterns('',
     url(r'^movies\.(?P<emitter_format>.+)$', movie_list_handler, name = 'mdb.movies.list'),
