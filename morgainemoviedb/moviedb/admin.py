@@ -71,6 +71,7 @@ class MovieAdmin(admin.ModelAdmin):
     ]
     list_display = ('default_title', 'year',)
     filter_horizontal = ('genres', 'countries')
+    search_fields = ('titles__text',)
 
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('name',)
