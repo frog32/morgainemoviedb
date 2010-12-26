@@ -189,7 +189,7 @@ class MovieExportHandler(BaseHandler):
     allowed_methods = ('GET',)
     model = MovieExport
     fields = (
-        'tmdb_id'
+        'tmdb_id',
         'imdb_id',
         'resolution',
         'duration',
