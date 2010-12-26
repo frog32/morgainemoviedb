@@ -100,9 +100,10 @@ class MovieAdmin(admin.ModelAdmin):
                             filequery = File.objects.media_search(xml_file.find('hash').text, xml_file.find('size').text)
                             if filequery.count() == 1:
                                 movie = filequery.get().movie
+                                if movie.tmdb_id != 0:
+                                    continue
                                 scrapper.set_movie(movie, int(xml_movie.find('tmdb_id').text))
-                                print "Set movie %s" % (movie.default_title,)
-                                output.append("Set movie %s" % (movie.default_title,))
+                                output.append("Set movie %s" % (movie.default_title(),))
                     return render_to_response('admin/moviedb/movie/identification_import.html',
                         {'output':output})
                 return render_to_response('admin/moviedb/movie/compare.html')
@@ -131,4 +132,3 @@ admin.site.register(Country)
 admin.site.register(Poster, PosterAdmin)
 admin.site.register(File,FileAdmin)
 admin.site.register(Folder, FolderAdmin)
-admin.site.register(Title)
