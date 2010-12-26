@@ -189,8 +189,11 @@ class MovieExportHandler(BaseHandler):
     allowed_methods = ('GET',)
     model = MovieExport
     fields = (
+        'tmdb_id'
         'imdb_id',
-        ('movie_files', ( 'hash', 'format', 'getVideoFormat', 'size')),
+        'resolution',
+        'duration',
+        ('movie_files', ( 'hash', 'format', 'format', 'size')),
         ('titles', ('text', 'default', 'country',)),
     )
     
