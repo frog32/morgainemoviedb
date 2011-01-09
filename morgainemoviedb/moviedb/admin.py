@@ -124,11 +124,15 @@ class MovieAdmin(admin.ModelAdmin):
                 # compare local media with xml file
                 
                 def movie_xml_to_dict(xml_movie):
+                    default_title = 'No Title'
                     for title in xml_movie.find('titles'):
                         if title.find('default').text == 'True':
-                            return {
-                                'title':title.find('text').text
-                            }
+                            default_title = title.find('text').text
+                    return {
+                        'title':default_title,
+                        'tmdb_id': xml_movie.find('tmdb_id').text,
+                        'files': ({'hash':file.find('hash').text,'size':file.find('size').text} for file in xml_movie.find('movie_files'))
+                    }
                     
                 compare_form = CompareForm(request.POST, request.FILES)
                 if compare_form.is_valid():
