@@ -68,6 +68,12 @@ class Movie(models.Model):
     def default_poster(self):
         return self.posters.all()[0].image_original.url
     
+    def delete(self, **kwargs):
+        for file in self.files.all():
+            file.movie = None
+            file.save()
+        super(Movie,self).delete(**kwargs)
+    
     def save(self, **kwargs):
         self.update()
         super(Movie,self).save(**kwargs)
@@ -220,7 +226,7 @@ class File(models.Model):
     size = models.IntegerField(default=0)
     duration = models.IntegerField(default=0)
 
-    movie = models.ForeignKey('Movie', related_name = 'files', blank=True, null = True, on_delete=models.SET_NULL)
+    movie = models.ForeignKey('Movie', related_name = 'files', blank=True, null = True)
     folder = models.ForeignKey('Folder', related_name = 'files')
     #video_tracks = OneToMany('VideoTrack')
     #audioTracks = OneToMany('AudioTrack')
