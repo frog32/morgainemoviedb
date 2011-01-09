@@ -2,18 +2,19 @@
 {% load i18n %}
 {% block content %}
 <h2>XML Import</h2>
+<h3>Import Identification</h3>
 <form action="." method="post" enctype="multipart/form-data">{% csrf_token %}
 <div>
 {% if errors %}
     <p class="errornote">
     {% blocktrans count errors|length as counter %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktrans %}
     </p>
-    {{ adminform.form.non_field_errors }}
+    {{ import_form.form.non_field_errors }}
 {% endif %}
 
-<div class="form-row{% if line.errors %} errors{% endif %}{% for field in line %} {{ field.field.name }}{% endfor %}">
+<div class="form-row">
     {{ line.errors }}
-    {% for field in adminform %}
+    {% for field in import_form %}
         <div{% if not line.fields|length_is:"1" %} class="field-box"{% endif %}>
             {% if field.is_checkbox %}
                 {{ field.field }}{{ field.label_tag }}
@@ -33,14 +34,48 @@
 </div>
 
 <div class="submit-row">
-<input type="submit" value="Unerkannte medien updaten" class="default" name="_send_identification" />
-<input type="submit" value="{% trans 'Save' %}" class="default" name="_save" />
+    <input type="submit" value="Unerkannte medien updaten" class="default" name="_send_identification" />
 </div>
 
-{% if adminform and add %}
-   <script type="text/javascript">document.getElementById("{{ adminform.first_field.auto_id }}").focus();</script>
+</div>
+</form>
+
+<h3>Compare</h3>
+<form action="." method="post" enctype="multipart/form-data">{% csrf_token %}
+<div>
+{% if errors %}
+    <p class="errornote">
+    {% blocktrans count errors|length as counter %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktrans %}
+    </p>
+    {{ compare_form.form.non_field_errors }}
 {% endif %}
 
+<div class="form-row">
+    {{ line.errors }}
+    {% for field in compare_form %}
+        <div{% if not line.fields|length_is:"1" %} class="field-box"{% endif %}>
+            {% if field.is_checkbox %}
+                {{ field.field }}{{ field.label_tag }}
+            {% else %}
+                {{ field.label_tag }}
+                {% if field.is_readonly %}
+                    <p>{{ field.contents }}</p>
+                {% else %}
+                    {{ field }}
+                {% endif %}
+            {% endif %}
+            {% if field.field.field.help_text %}
+                <p class="help">{{ field.field.field.help_text|safe }}</p>
+            {% endif %}
+        </div>
+    {% endfor %}
 </div>
-</form></div>
+
+<div class="submit-row">
+    <input type="submit" value="Vergleiche" class="default" name="_send_compare" />
+</div>
+
+</div>
+</form>
+
 {% endblock %}
