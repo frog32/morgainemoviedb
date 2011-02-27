@@ -285,34 +285,6 @@ class File(models.Model):
                     )
                 )
 
-    def scan(self, report):
-        dirList=os.listdir(self.path)
-        # add new files
-        for entry in dirList:
-            report['scan'] = report['scan'] + 1
-            create=True
-            for file in self.childs.all():
-                if entry == file.name:
-                    create=False
-            for reg in settings.SCAN_EXCLUDE_FILES:
-                if re.search(reg,entry):
-                    create=False
-            if create:
-                newFile = File(path=os.path.join(self.path,entry), folder = self.folder)
-                report['added'].append(newFile.path)
-                newFile.getFileInfo()
-                self.childs.add(newFile)
-        # delete old files
-        for file in self.childs.all():
-            if not file.name in dirList:
-                report['removed'].append(file.path)
-                file.delete()
-        # scan all subfolders
-        for file in self.childs.all():
-            if file.type == 'dir':
-                report = file.scan(report)
-        return report
-
     def setMovie(self,movie):
         self.movie = movie
         self.save()
@@ -407,48 +379,39 @@ class Folder(models.Model):
         return self.path
     
     def scan(self):
+        return self._scan()
+    
+    def _scan(self,parent_file=None):
         # todo: outsource this into a stragedy
-        dirList=os.listdir(self.path)
+        if parent_file:
+            path = parent_file.path
+        else:
+            path = self.path
+        dir_list = os.listdir(path)
         # add new files
-        report = {\
-            'scan' : 0, \
-            'added' : [], \
-            'removed' : [], \
-        }
-        for entry in dirList:
-            report['scan'] = report['scan'] + 1
-            create=True
-            for file in self.files.all():
-                if entry == file.name:
-                    create=False
-                    if file.type == 'dir':
-                        report = file.scan(report)
-            for reg in settings.SCAN_EXCLUDE_FILES:
-                if re.search(reg,entry):
-                    create=False
-            if create:
-                newFile = File(path = os.path.join(self.path,entry), folder = self)
-                report['added'].append(newFile.path)
-                newFile.getFileInfo()
-                self.files.add(newFile)
-        # delete old files
-        for file in self.files.all():
-            if not file.name in dirList:
-                report['removed'].append(file.path)
-                file.delete()
-        # scan all subfolders        
-        for file in self.files.all():
+        for entry in dir_list:
+            try:
+                file = self.files.get(parent=parent_file,name=entry)
+            except File.DoesNotExist:
+                if is_excluded(entry):
+                    continue
+                file = self.files.create(path=os.path.join(path,entry),parent=parent_file)
+                file.getFileInfo()
             if file.type == 'dir':
-                report = file.scan(report)
-        # if not belongs to a movie assign it and all subfiles to a movie
-        for file in self.files.filter(parent__isnull=True).filter(movie__isnull=True):
-            if file.containsMovies():
-                newMovie = Movie()
-                newMovie.save()
-                file.setMovie(newMovie)
+                self._scan(parent_file=file)
+            if parent_file == None:
+                if file.containsMovies():
+                    file.setMovie(Movie.objects.create())
+        # add to movie or delete
+        for file in self.files.filter(parent=parent_file):
+            if not file.name in dir_list:
+                file.delete()
             
-        return report
-
+def is_excluded(name):
+    for reg in settings.SCAN_EXCLUDE_FILES:
+        if re.search(reg,entry):
+            return True
+    return False
 
 class Bookmark(models.Model):
     movie = models.ForeignKey('Movie', related_name = 'bookmarks')
