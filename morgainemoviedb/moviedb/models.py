@@ -389,21 +389,27 @@ class Folder(models.Model):
             path = self.path
         dir_list = os.listdir(path)
         # add new files
+        print "### Folder: %s" % path
         for entry in dir_list:
             try:
                 file = self.files.get(parent=parent_file,name=entry)
+                print "%s found" % entry
             except File.DoesNotExist:
                 if is_excluded(entry):
+                    print "%s excluded" % entry
                     continue
+                print "%s created" % entry
                 file = self.files.create(path=os.path.join(path,entry),parent=parent_file)
                 file.getFileInfo()
             if file.type == 'dir':
                 self._scan(parent_file=file)
-            if parent_file == None and file.movie is not None and file.containsMovies:
+            if parent_file == None and file.movie is None and file.containsMovies:
+                print "%s set movie" % entry
                 file.setMovie(Movie.objects.create())
         # add to movie or delete
         for file in self.files.filter(parent=parent_file):
             if not file.name in dir_list:
+                print "%s deleted"  % file.name
                 file.delete()
             
 def is_excluded(name):
