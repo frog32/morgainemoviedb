@@ -399,9 +399,8 @@ class Folder(models.Model):
                 file.getFileInfo()
             if file.type == 'dir':
                 self._scan(parent_file=file)
-            if parent_file == None:
-                if file.containsMovies():
-                    file.setMovie(Movie.objects.create())
+            if parent_file == None and file.movie is not None and file.containsMovies:
+                file.setMovie(Movie.objects.create())
         # add to movie or delete
         for file in self.files.filter(parent=parent_file):
             if not file.name in dir_list:
