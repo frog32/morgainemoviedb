@@ -4,7 +4,7 @@
 <h2>Movie Compare</h2>
 <ul>
     {% for movie in output %}
-        <li><a href="http://www.themoviedb.org/movie/{{movie.tmdb_id}}">{{movie.title}}</a>{% for file in movie.files %} ({{file.size}},{{file.hash}}){% endfor %}</li>
+        <li><a href="http://www.themoviedb.org/movie/{{movie.tmdb_id}}" target="_blank">{{movie.title}}</a>{% for file in movie.files %} ({{file.size}},{{file.hash}}){% endfor %}</li>
     {% endfor %}
 </ul>
 {% endblock %}

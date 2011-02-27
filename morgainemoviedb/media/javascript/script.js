@@ -20,7 +20,7 @@ function durationRenderer(val){
 function languageRenderer(lang){
     if(lang=='und')
         return '<img src="'+settings.media_url+'img/silk/world.png" />'
-    var lang2fam={bul:'bg',chi:'cn',cze:'cs',dan:'dk',dut:'nl',eng:'gb',est:'et',fin:'fi',fre:'fr',ger:'de',gre:'gr',hun:'hu',ita:'it',nor:'no',pol:'pl',por:'pt',rum:'ro',slv:'sl',spa:'es',swe:'se'};
+    var lang2fam={bul:'bg',chi:'cn',cze:'cs',dan:'dk',deu:'de',dut:'nl',eng:'gb',est:'et',fin:'fi',fre:'fr',ger:'de',gre:'gr',hun:'hu',ita:'it',jpn:'jp',kor:'kr',nor:'no',pol:'pl',por:'pt',rum:'ro',rus:'ru',slv:'sl',spa:'es',swe:'se'};
     var filename=lang2fam[lang];
     if(!filename)
         return lang;
