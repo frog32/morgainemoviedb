@@ -409,7 +409,7 @@ class Folder(models.Model):
             
 def is_excluded(name):
     for reg in settings.SCAN_EXCLUDE_FILES:
-        if re.search(reg,entry):
+        if re.search(reg,name):
             return True
     return False
 
