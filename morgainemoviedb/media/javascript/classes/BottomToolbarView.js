@@ -46,7 +46,7 @@ MorgaineMovieDB.view.BottomToolbarView = Ext.extend(MorgaineMovieDB.view.Abstrac
   
   updatePrivileges: function(){
     this.loginButton.setDisabled(currentUser.authenticated);	  
-    this.logoutButton.setDisabled(!currentUser.authenticated);	  
+    this.logoutButton.setDisabled(!currentUser.authenticated);
   }
 	
 });

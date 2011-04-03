@@ -53,12 +53,12 @@ MorgaineMovieDB.view.MovieView = Ext.extend(MorgaineMovieDB.view.AbstractView,{
         this.panel= new Ext.Panel({
             layout: 'border',
             title: 'Movies',
-            listeners:{
-                'activate':{
-                    fn:this.update,
-                    scope:this
-                }
-            },
+            // listeners:{
+            //     'activate':{
+            //         fn:this.update,
+            //         scope:this
+            //     }
+            // },
             items: [
                 this.grid,
                 this.detailView.draw()
@@ -82,6 +82,8 @@ MorgaineMovieDB.view.MovieView = Ext.extend(MorgaineMovieDB.view.AbstractView,{
     },
     
     update: function(){
+        if(!currentUser.authenticated)
+            return;
         Ext.Ajax.request({
             url:settings.api_url+'movies.json',
             scope: this,

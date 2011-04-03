@@ -7,9 +7,8 @@ var bottomToolbar = new MorgaineMovieDB.view.BottomToolbarView({});
 var currentUser = new MorgaineMovieDB.model.User({});
 
 // register updatePrivileges Callbacks
-//currentUser.addListener('authenticationUpdate',userPanel.updatePrivileges, userPanel);
-//currentUser.addListener('authenticationUpdate',configPanel.updatePrivileges, configPanel);
 currentUser.addListener('authenticationUpdate',bottomToolbar.updatePrivileges, bottomToolbar);
+currentUser.addListener('authenticationUpdate',moviePanel.update, moviePanel);
 
 Ext.onReady(function(){
 	
