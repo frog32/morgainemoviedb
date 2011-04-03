@@ -403,7 +403,7 @@ class Folder(models.Model):
                 file.getFileInfo()
             if file.type == 'dir':
                 self._scan(parent_file=file)
-            if parent_file == None and file.movie is None and file.containsMovies:
+            if parent_file == None and file.movie is None and file.containsMovies():
                 print "%s set movie" % entry
                 file.setMovie(Movie.objects.create())
         # delete
