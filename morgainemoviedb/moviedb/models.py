@@ -246,12 +246,12 @@ class File(models.Model):
             self.type = u'dir'
         elif os.path.splitext(self.name)[1] in settings.MOVIE_FILE_SUFFIXES.keys() and settings.MOVIE_FILE_SUFFIXES[os.path.splitext(self.name)[1]] == 'movie':
             self.type = u'movie'
-            self.save()
             self.getTracks()
         else:
             self.type = u'unknown'
         if not self.type == u'dir':
             self.hash=unicode(hash_file(self.path))
+        self.save()
 
     def getTracks(self):
         '''get metadata with ffmpeg'''
@@ -406,7 +406,7 @@ class Folder(models.Model):
             if parent_file == None and file.movie is None and file.containsMovies:
                 print "%s set movie" % entry
                 file.setMovie(Movie.objects.create())
-        # add to movie or delete
+        # delete
         for file in self.files.filter(parent=parent_file):
             if not file.name in dir_list:
                 print "%s deleted"  % file.name
